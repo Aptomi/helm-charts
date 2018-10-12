@@ -1,0 +1,18 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: oauth2-proxy-{{ .Release.Name }}
+spec:
+  rules:
+  - host: {{ (index .Values.ingress.hosts 0) }}
+    http:
+      paths:
+      - backend:
+          serviceName: oauth2-proxy-{{ .Release.Name }}
+          servicePort: 4180
+        path: /oauth2
+  tls:
+    - hosts:
+      - {{ .Values.hostname }}
+      secretName: {{(index .Values.ingress.tls 0).secretName }}

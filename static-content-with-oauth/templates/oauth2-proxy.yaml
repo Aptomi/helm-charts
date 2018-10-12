@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: oauth2-proxy-{{ .Release.Name }}
+  name: oauth2-proxy-{{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: oauth2-proxy-{{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        k8s-app: oauth2-proxy-{{ .Release.Name }}
+    spec:
+      containers:
+      - args: 
+{{ toYaml .Values.oauth.args | indent 10 }}
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          value: "{{ .Values.oauth.clientId }}"
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          value: "{{ .Values.oauth.clientSecret }}"
+        # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          value: "{{ .Values.oauth.cookieSecret }}"
+        image: docker.io/colemickens/oauth2_proxy:latest
+        imagePullPolicy: Always
+        name: oauth2-proxy-{{ .Release.Name }}
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: oauth2-proxy-{{ .Release.Name }}
+  name: oauth2-proxy-{{ .Release.Name }}
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    k8s-app: oauth2-proxy-{{ .Release.Name }}
