@@ -16,15 +16,25 @@ spec:
     spec:
       containers:
       - args: 
-{{ toYaml .Values.oauth.args | indent 10 }}
+          - "--provider={{ .Values.oauth.provider }}"
+          - "--azure-tenant={{ .Values.oauth.tenant }}"
+          - "--email-domain={{ .Values.oauth.domain }}"
+          - "--upstream=file:///dev/null"
+          - "--http-address=0.0.0.0:4180"
         env:
         - name: OAUTH2_PROXY_CLIENT_ID
           value: "{{ .Values.oauth.clientId }}"
         - name: OAUTH2_PROXY_CLIENT_SECRET
           value: "{{ .Values.oauth.clientSecret }}"
-        # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
         - name: OAUTH2_PROXY_COOKIE_SECRET
           value: "{{ .Values.oauth.cookieSecret }}"
+        - name: OAUTH2_PROVIDER
+          value: "{{ .Values.oauth.provider }}"
+        - name: OAUTH2_AZURE_TENANT
+          value: "{{ .Values.oauth.tenant }}"
+        - name: OAUTH2_DOMAIN
+          value: "{{ .Values.oauth.domain }}"
+
         image: docker.io/colemickens/oauth2_proxy:latest
         imagePullPolicy: Always
         name: oauth2-proxy-{{ .Release.Name }}

@@ -64,10 +64,10 @@ spec:
           command: 
             - sh
             - -cex 
-            - cp -vr {{ .Values.docImage.contentDir }}/* /usr/share/nginx/html
+            - find {{ .Values.docImage.contentDir }} -type f ; cp -vr {{ .Values.docImage.contentDir }}/* /var/www
           volumeMounts:
             - name: docs
-              mountPath: /usr/share/nginx/html
+              mountPath: /var/www
       volumes:          
         - name: docs
           emptyDir: {} 
